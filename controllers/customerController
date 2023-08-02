@@ -1,0 +1,62 @@
+const controller = {};
+
+controller.list = (req, res) => {
+    req.getConnection((err, conn) => {
+        conn.query('SELECT * FROM customer', (err, customers) =>{
+           if (err) {
+            res.json(err); 
+           }
+           res.render('customers', {
+               data: customers
+           });
+        });
+    });
+};
+
+controller.save = (req, res) => {
+    const data = req.body;
+    console.log('Received data from the form:', data); // Agregar este mensaje de registro
+    
+    req.getConnection((err, conn) => {
+        if (err) {
+            console.log('Error connecting to the database:', err);
+            res.redirect('/'); // Puedes redirigir al usuario nuevamente a la página principal en caso de error
+            return;
+        }
+
+        conn.query('INSERT INTO customer SET ?', [data], (err, customer) => {
+            if (err) {
+                console.log('Error executing the query:', err);
+                res.redirect('/'); // Puedes redirigir al usuario nuevamente a la página principal en caso de error
+                return;
+            }
+
+            console.log('New customer saved:', data); // Agregar este mensaje de registro
+            res.redirect('/'); // Redirigir al usuario a la página principal después de guardar el cliente
+        });
+    });
+};
+
+controller.delete = (req, res) => {
+    const customerId = req.params.id; // Obtener el ID del cliente desde la ruta
+    req.getConnection((err, conn) => {
+        if (err) {
+            console.log('Error connecting to the database:', err);
+            res.redirect('/');
+            return;
+        }
+
+        conn.query('DELETE FROM customer WHERE id = ?', [customerId], (err, result) => {
+            if (err) {
+                console.log('Error executing the query:', err);
+                res.redirect('/');
+                return;
+            }
+
+            console.log('Customer deleted with ID:', customerId);
+            res.redirect('/');
+        });
+    });
+};
+
+module.exports = controller;
