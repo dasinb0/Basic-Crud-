@@ -37,6 +37,35 @@ controller.save = (req, res) => {
     });
 };
 
+controller.edit = (req, res) => {
+    const { id } = req.params;
+    req.getConnection((err, conn) => {
+        conn.query('SELECT * FROM customer WHERE id = ?', [id], (err, customer) => {
+            res.render('customer_edit' , {
+                data: customer[0]
+            });
+        })
+    });
+}
+
+controller.update = (req, res) => {
+    const id = req.params.id; // Extraer el parámetro 'id' de req.params
+    const newCustomer = req.body;
+    req.getConnection((err, conn) => {
+        conn.query('UPDATE customer SET ? WHERE id = ?', [newCustomer, id], (err, rows) => {
+            if (err) {
+                console.log('Error executing the query:', err);
+                res.redirect('/');
+                return;
+            }
+
+            console.log('Customer updated with ID:', id);
+            res.redirect('/');
+        });
+    });
+};
+
+
 controller.delete = (req, res) => {
     const customerId = req.params.id; // Obtener el ID del cliente desde la ruta
     req.getConnection((err, conn) => {
